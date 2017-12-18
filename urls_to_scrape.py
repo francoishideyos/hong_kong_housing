@@ -33,7 +33,7 @@ while i < pages + 1:
 class JsonWriterPipeline(object):
 
     def open_spider(self, spider):
-        self.file = open('urls_to_scrape.jl', 'w')
+        self.file = open('assets/data/urls_to_scrape.jl', 'w')
 
     def close_spider(self, spider):
         self.file.close()
@@ -52,7 +52,7 @@ class ExtractSpider(scrapy.Spider):
         'LOG_LEVEL': logging.WARNING,
         'ITEM_PIPELINES': {'__main__.JsonWriterPipeline': 1}, # Used for pipeline 1
         'FEED_FORMAT':'json',                                 # Used for pipeline 2
-        'FEED_URI': 'urls_to_scrape.json'                        # Used for pipeline 2
+        'FEED_URI': 'assets/data/urls_to_scrape.json'                        # Used for pipeline 2
     }
 
     def parse(self, response):
