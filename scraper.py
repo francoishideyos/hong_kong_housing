@@ -11,7 +11,7 @@ from scrapy.selector import HtmlXPathSelector
 main_urls = ['https://www.28hse.com/en/buy/place-1/house-type-g1','https://www.28hse.com/en/buy/place-2/house-type-g1','https://www.28hse.com/en/buy/place-3/house-type-g1']
 
 
-def scrapers(urls = main_urls, file_format = 'csv', next_page_dummy = True, file_path = 'assets/data/urls_to_scrape_'+ time.strftime("%m-%d-%Y") ):
+def scrapers(urls = main_urls, file_format = '.csv', next_page_dummy = True, file_path = 'assets/data/urls_to_scrape_'+ time.strftime("%m-%d-%Y") ):
 
     # Use Scrapy to start scraping for the urls
     class JsonWriterPipeline(object):
