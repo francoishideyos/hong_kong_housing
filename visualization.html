@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <script src="http://d3js.org/d3.v4.min.js"></script>
+  <!-- <script src="http://square.github.io/crossfilter/crossfilter.v1.min.js"></script> -->
+  <!-- <script src="http://dc-js.github.io/dc.js/js/dc.min.js"></script> -->
+  <!-- <script src="assets/visualization/dc.js-3.0.2/web/js/d3.js"></script> -->
+  <script src="assets/visualization/dc.js-3.0.2/web/js/crossfilter.js"></script>
+  <script src="assets/visualization/dc.js-3.0.2/web/js/dc.js"></script>
+  <link rel="stylesheet" type="text/css" href="assets/visualization/dc.js-3.0.2/dc.css" />
+  <link rel="stylesheet" type="text/css" href="https://dc-js.github.io/dc.js/css/bootstrap.min.css" />
+</head>
+
+<body style="background-color:#FEFEFA;">
+
+  <!-- Title of page -->
+  <div class="container" style="width:1300px">
+    <div class="row">
+      <h1>28 Hse</h1
+    </div>
+
+    <div class="row" style="float:left;display:inline">
+      <!-- Displaying the pie chart by Region -->
+      <!-- <div id='country-pie-chart'>
+        <strong>Breakdown by Ticket Sales Region</strong>
+        <a class="reset" href="javascript:countryPieChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+        <div class="clearfix"></div>
+      </div> -->
+
+      <div id='region-row-chart'>
+        <strong>Breakdown by Region</strong>
+        <a class="reset" href="javascript:regionRowChart.filterAll();dc.redrawAll();" style="display: none;">reset></a>
+        <div class="clearfix"></div>
+      </div>
+
+      <div id='estate-row-chart'>
+        <strong>Breakdown by Estate</strong>
+        <a class="reset" href="javascript:estateRowChart.filterAll();dc.redrawAll();" style="display: none;">reset></a>
+        <div class="clearfix"></div>
+      </div>
+
+ <!--      <div id='ticket-status-chart'>
+        <strong>Breakdown by Ticket Status</strong>
+        <a class="reset" href="javascript:ticketStatusChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+        <div class="clearfix"></div>
+      </div>
+
+      <div id='problem-name-chart'>
+        <strong>Breakdown by Problem Name</strong>
+        <a class="reset" href="javascript:problemNameChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+        <div class="clearfix"></div>
+      </div>
+
+      <div id='solution-name-chart'>
+        <strong>Breakdown by Solution Name</strong>
+        <a class="reset" href="javascript:solutionNameChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+        <div class="clearfix"></div>
+      </div>
+
+      <div id='document-type-chart'>
+        <strong>Breakdown by Document Type</strong>
+        <a class="reset" href="javascript:documentTypeChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+        <div class="clearfix"></div>
+      </div>
+
+      <div id='reasons-for-deferral-chart'>
+        <strong>Breakdown by Reasons for Deferral</strong>
+        <a class="reset" href="javascript:reasonsForDeferralChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+        <div class="clearfix"></div>
+      </div>
+ -->
+      <!-- <div id='timeline-row-chart'>
+        <strong>Breakdown by Year Month</strong>
+        <a class="reset" href="javascript:timelineRowChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+        <div class="clearfix"></div>
+      </div> -->
+<!-- 
+      <div class="row">
+        <div id='created-timeline-chart'>
+          <strong>Created & Resolved Chart</strong>
+          <a class="reset" href="javascript:createdtimelineChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+          <div class="clearfix"></div>
+        </div>
+      </div>
+      <div class="row">
+          <div id="monthly-volume-chart">
+          </div>
+          <p class="muted pull-right" style="margin-right: 15px;">select a time range to zoom in</p>
+      </div>
+ -->
+      <!-- <div class="row">
+        <div id='closed-timeline-chart'>
+          <strong>Total Created Chart</strong>
+          <a class="reset" href="javascript:closedtimelineChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+          <div class="clearfix"></div>
+        </div>
+      </div> -->
+
+      <div class="row">
+        <div id='data-table-chart'>
+          <strong>Data Table</strong>
+          <a class="reset" href="javascript:dataTableChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+          <div class="clearfix"></div>
+        </div>
+      </div>
+
+
+    </div>
+
+    <script>
+    function remove_empty_bins(source_group) {
+        return {
+            all:function () {
+                return source_group.all().filter(function(d) {
+                    //return Math.abs(d.value) > 0.00001; // if using floating-point numbers
+                    return d.value !== 0; // if integers only
+                });
+            }
+        };
+    }
+
+      // var countryPieChart = dc.pieChart('#country-pie-chart');
+      var regionRowChart = dc.rowChart('#region-row-chart');
+      var estateRowChart = dc.rowChart('#estate-row-chart');
+      // var problemNameChart = dc.rowChart('#problem-name-chart');
+      // var solutionNameChart = dc.rowChart('#solution-name-chart');
+      // var ticketStatusChart = dc.rowChart('#ticket-status-chart');
+      // var documentTypeChart = dc.rowChart('#document-type-chart');
+      // var reasonsForDeferralChart = dc.rowChart('#reasons-for-deferral-chart');
+      // var createdtimelineChart = dc.lineChart('#created-timeline-chart');
+      // var timeChart = dc.barChart('#monthly-volume-chart');
+      // var closedtimelineChart = dc.lineChart('#closed-timeline-chart');
+      // var timelineRowChart = dc.rowChart('#timeline-row-chart');
+      var dataTableChart = dc.dataTable('#data-table-chart')
+
+
+      // Define date formats
+      var dateFormat = d3.timeFormat("%m/%d/%Y %H:%M");
+      // *********** Loading data  *********** //
+
+      // Load csv data into SDSKdata, plus parsing the date
+      d3.csv("assets/data/urls_to_scrape_07-08-2018.csv", function(data) {
+        data.forEach(function(d) {
+          // d.date = dateFormat.parse(d["Create Date"]);
+          // d.dateYear = yearFormat(d.date);
+          // d.dateMonth = monthFormat(d.date);
+          // d.yearmonth = yearmonthFormat(d.date);
+          // d.yearmonthday = yearmonthdayFormat(d.date);
+          // d.resolveDate = dateFormat.parse(d["Resolution Date"]);
+          // d.resolveDateYear = yearFormat(d.resolveDate);
+          // d.resovleDateMonth = monthFormat(d.resolveDate);
+          // d.resovleYearmonth = yearmonthFormat(d.resolveDate);
+          // d.resolveYearmonthday = yearmonthdayFormat(d.resolveDate);
+        });
+
+        console.log(data[2917]);
+
+        // Load data into crossfilter
+        var abc = crossfilter(data);
+        // var resolveAbc = crossfilter(resolveData);
+
+        // // *********** Summarize data by Region - Pie chart *********** //
+        // region = abc.dimension(function(d) {
+        //   return d["Region"];
+        // });
+        // // Sum up number of tickets by Region
+        // regionGroup = region.group();
+        // // Pie chart display characteristics
+        // countryPieChart /* dc.pieChart('#region-chart') */
+        //   .width(450)
+        //   .height(250)
+        //   .radius(120)
+        //   .innerRadius(30)
+        //   .drawPaths(true)
+        //   .minAngleForLabel(0.1)
+        //   .group(regionGroup)
+        //   .dimension(region)
+        //   .cap(5)
+        //   // .legend(dc.legend()) // Put in auto generated legend
+        //   // Calculate percentages
+        //   .on('pretransition', function(countrypiechart) {
+        //     countrypiechart.selectAll('text.pie-slice').text(function(d) {
+        //       return d.data.key + ' ' + dc.utils.printSingleValue((d.endAngle - d.startAngle) / (2 * Math.PI) * 100) + '%';
+        //     });
+        //   });
+        
+        // *********** Summarize data by Region - Row chart *********** //
+        regionDimension = abc.dimension(function(d) {
+          return d["Region"];
+        });
+        regionRowGroup = regionDimension.group();
+        regionRowChart /* dc.rowChart('#mkt-type-chart') */
+          // Big row chart
+          // .width(900)
+          // .height(430)
+          // .margins({
+          //   top: 20,
+          //   left: 20,
+          //   right: 20,
+          //   bottom: 20
+          .width(600)
+          .height(600)
+          // .margins({
+          //   top: 50,
+          //   left: 50,
+          //   right: 25,
+          //   bottom: 40
+          // })
+          .group(regionRowGroup)
+          .dimension(regionDimension)
+          .cap(20)
+          .label(function(d) {
+            return d.key + " : " + d.value + " - " + (d.value / data.length * 100).toFixed(2) + "%";
+          })
+          // Title sets the row text
+          .title(function(d) {
+            return d["ID"];
+          })
+          .elasticX(true)
+          .xAxis().ticks(5);
+        // Change colors
+        // countryRowChart.ordinalColors(['#F5CA70', '#CE9A94']);
+        
+
+        // *********** Summarize data by Region - Row chart *********** //
+        estateDimension = abc.dimension(function(d) {
+          return d["Estate"];
+        });
+        estateRowGroup = estateDimension.group();
+        estateRowChart 
+          .width(600)
+          .height(600)
+          // .margins({
+          //   top: 50,
+          //   left: 50,
+          //   right: 25,
+          //   bottom: 40
+          // })
+          .group(estateRowGroup)
+          .dimension(estateDimension)
+          .cap(20)
+          .label(function(d) {
+            return d.key + " : " + d.value + " - " + (d.value / data.length * 100).toFixed(2) + "%";
+          })
+          // Title sets the row text
+          .title(function(d) {
+            return d["ID"];
+          })
+          .elasticX(true)
+          .xAxis().ticks(5);
+
+
+
+        // // // *********** Summarize data by Resolution Code - Row chart *********** //
+        // resolutionDimension = abc.dimension(function(d) {
+        //   return d["Problem Name"];
+        // });
+        // resolutionGroup = resolutionDimension.group()
+        // problemNameChart
+        //   .width(450)
+        //   .height(350)
+        //   .margins({
+        //     top: 0,
+        //     left: 25,
+        //     right: 25,
+        //     bottom: 40
+        //   })
+        //   .group(resolutionGroup)
+        //   .dimension(resolutionDimension)
+        //   .cap(15)
+        //   .label(function(d) {
+        //     return d.key + " : " + d.value + " - " + (d.value / data.length * 100).toFixed(2) + "%";
+        //   })
+        //   // Title sets the row text
+        //   .title(function(d) {
+        //     return d["Ticket ID"];
+        //   })
+        //   .elasticX(true)
+        //   .xAxis().ticks(5);
+
+        // // // *********** Summarize data by Lock Rep Dept - Row chart *********** //
+        // lockRepDeptDimension = abc.dimension(function(d) {
+        //   return d["Ticket Status (description)"];
+        // });
+        // lockRepDeptGroup = lockRepDeptDimension.group()
+        // ticketStatusChart
+        //   .width(450)
+        //   .height(350)
+        //   .margins({
+        //     top: 0,
+        //     left: 25,
+        //     right: 25,
+        //     bottom: 40
+        //   })
+        //   .group(lockRepDeptGroup)
+        //   .dimension(lockRepDeptDimension)
+        //   .label(function(d) {
+        //     return d.key + " : " + d.value + " - " + (d.value / data.length * 100).toFixed(2) + "%";
+        //   })
+        //   // Title sets the row text
+        //   .title(function(d) {
+        //     return d["Ticket ID"];
+        //   })
+        //   .elasticX(true)
+        //   .xAxis().ticks(5);
+        // // // *********** Summarize data by Frequency - Row chart *********** //
+        // frequencyDimension = abc.dimension(function(d) {
+        //   return d["Generic Attribute 1 String Value"];
+        // });
+        // frequencyGroup = frequencyDimension.group()
+        // documentTypeChart
+        //   .width(450)
+        //   .height(350)
+        //   .margins({
+        //     top: 0,
+        //     left: 25,
+        //     right: 25,
+        //     bottom: 40
+        //   })
+        //   .group(frequencyGroup)
+        //   .dimension(frequencyDimension)
+        //   .cap(15)
+        //   .label(function(d) {
+        //     return d.key + " : " + d.value + " - " + (d.value / data.length * 100).toFixed(2) + "%";
+        //   })
+        //   // Title sets the row text
+        //   .title(function(d) {
+        //     return d["Ticket ID"];
+        //   })
+        //   .elasticX(true)
+        //   .xAxis().ticks(5);
+
+        // // *********** Summarize data by Priority - Row chart *********** //
+        // priorityDimension = abc.dimension(function(d) {
+        //   return d["Generic Attribute 6 String Value"];
+        // });
+        // priorityGroup = priorityDimension.group()
+        // reasonsForDeferralChart
+        //   .width(450)
+        //   .height(350)
+        //   .margins({
+        //     top: 0,
+        //     left: 25,
+        //     right: 25,
+        //     bottom: 40
+        //   })
+        //   .group(priorityGroup)
+        //   .dimension(priorityDimension)
+        //   .label(function(d) {
+        //     return d.key + " : " + d.value + " - " + (d.value / data.length * 100).toFixed(2) + "%";
+        //   })
+        //   // Title sets the row text
+        //   .title(function(d) {
+        //     return d["Ticket ID"];
+        //   })
+        //   .elasticX(true)
+        //   .xAxis().ticks(5);
+
+        //   // *********** Summarize data by Priority - Row chart *********** //
+        //   solutionDimension = abc.dimension(function(d) {
+        //     return d["Solution Name"];
+        //   });
+        //   solutionGroup = solutionDimension.group()
+        //   solutionNameChart
+        //     .width(450)
+        //     .height(350)
+        //     .margins({
+        //       top: 0,
+        //       left: 25,
+        //       right: 25,
+        //       bottom: 40
+        //     })
+        //     .group(solutionGroup)
+        //     .dimension(solutionDimension)
+        //     .label(function(d) {
+        //       return d.key + " : " + d.value + " - " + (d.value / data.length * 100).toFixed(2) + "%";
+        //     })
+        //     // Title sets the row text
+        //     .title(function(d) {
+        //       return d["Ticket ID"];
+        //     })
+        //     .elasticX(true)
+        //     .xAxis().ticks(5);
+
+        //   // *********** Summarize data by Year Month - Row chart *********** //
+        //   // timelineDimension = abc.dimension(function(d) {
+        //   //   return d.dateYear;
+        //   // });
+        //   // timelineGroup = timelineDimension.group()
+        //   // timelineRowChart
+        //   //   .width(450)
+        //   //   .height(350)
+        //   //   .margins({
+        //   //     top: 0,
+        //   //     left: 25,
+        //   //     right: 25,
+        //   //     bottom: 40
+        //   //   })
+        //   //   .group(timelineGroup)
+        //   //   .dimension(timelineDimension)
+        //   //   .label(function(d) {
+        //   //     return d.key + " : " + d.value + " - " + (d.value / data.length * 100).toFixed(2) + "%";
+        //   //   })
+        //   //   // Title sets the row text
+        //   //   .title(function(d) {
+        //   //     return d["Ticket ID"];
+        //   //   })
+        //   //   .elasticX(true)
+        //   //   .xAxis().ticks(5);
+
+        // // // *********** Timeline - Line chart *********** //
+        // //
+        // timelineDimension = abc.dimension(function(d) {
+        //   return d.date;
+        // });
+
+        // // resolveDimension = resolveAbc.dimension(function(d) {
+        // //   return d.resolveDate;
+        // // });
+
+
+        // timelineGroup = timelineDimension.group(d3.time.week);
+        // // resolveTimeGroup = resolveDimension.group(d3.time.month);
+        // createdtimelineChart
+        //   .renderArea(true)
+        //   .width(1800)
+        //   .height(500)
+        //   .transitionDuration(1000)
+        //   .margins({
+        //     top: 0,
+        //     left: 40,
+        //     right: 20,
+        //     bottom: 40
+        //   })
+        //   .dimension(timelineDimension)
+        //   .mouseZoomable(true)
+        //   .rangeChart(timeChart)
+        //   .x(d3.time.scale().domain([new Date(2016, 12, 1), new Date(2018, 3, 31)]))
+        //   .xUnits(d3.time.months)
+        //   .round(d3.time.month.round)
+        //   .elasticY(true)
+        //   .renderHorizontalGridLines(true)
+        //   .legend(dc.legend().x(800).y(10).itemHeight(13).gap(5))
+        //   .brushOn(false)
+        //   .group(timelineGroup, "Total Tickets")
+        //   .valueAccessor(function (d) {
+        //     return d.value;
+        //   })
+
+        //   // // *********** Timeline - Line chart *********** //
+        //   //
+        //   resolvedtimelineDimension = abc.dimension(function(d) {
+        //     return d.resolveDate;
+        //   });
+
+        //   // resolveDimension = resolveAbc.dimension(function(d) {
+        //   //   return d.resolveDate;
+        //   // });
+
+        //   resolvedtimelineGroup = resolvedtimelineDimension.group();
+        //   // var filtered_group = remove_empty_bins(resolvedtimelineGroup)
+
+        //   // Since this bar chart is specified as "range chart" for the area chart, its brush extent
+        //   // will always match the zoom of the area chart.
+        //   timeChart  /* dc.barChart('#monthly-volume-chart', 'chartGroup'); */
+        //     .width(1800)
+        //     .height(300)
+        //     .margins({top: 0, right: 50, bottom: 20, left: 40})
+        //     .dimension(resolvedtimelineDimension)
+        //     .group(resolvedtimelineGroup)
+        //     .centerBar(true)
+        //     .gap(1)
+        //     .x(d3.time.scale().domain([new Date(2016, 12, 1), new Date(2018, 3, 31)]))
+        //     .round(d3.time.month.round)
+        //     .alwaysUseRounding(true)
+        //     .xUnits(d3.time.months);
+
+
+        //   // resolveTimeGroup = resolveDimension.group(d3.time.month);
+        //   closedtimelineChart
+        //     .renderArea(true)
+        //     .width(1500)
+        //     .height(430)
+        //     .transitionDuration(1000)
+        //     .margins({
+        //       top: 0,
+        //       left: 40,
+        //       right: 20,
+        //       bottom: 40
+        //     })
+        //     .dimension(resolvedtimelineDimension)
+        //     .mouseZoomable(true)
+        //     .x(d3.time.scale().domain([new Date(2016, 13, 1), new Date(2018, 12, 31)]))
+        //     .xUnits(d3.time.months)
+        //     .round(d3.time.month.round)
+        //     .elasticY(true)
+        //     .renderHorizontalGridLines(true)
+        //     .legend(dc.legend().x(800).y(10).itemHeight(13).gap(5))
+        //     .brushOn(false)
+        //     .group(resolvedtimelineGroup, "Total Tickets")
+        //     .valueAccessor(function (d) {
+        //       return d.value;
+        //     })
+          
+
+          // .stack(resolveTimeGroup, "Resolved", function(d) {
+          //   return d.value;
+          // });
+          // Title sets the row text
+          // .title(function(d) {
+          //   return d["Ticket ID"];
+          // })
+        //
+          // *********** Data Table *********** //
+          dataTableDimension = abc.dimension(function(d) {
+            return d["ID"]
+          });
+        
+          atmost = function(p) {
+            return "Most recent 100 Tickets";
+          };
+        
+          var tableColumns = ['ID','Region'];
+        
+          dataTableChart
+          .dimension(dataTableDimension)
+          .group(atmost)
+          .columns(tableColumns)
+          .size(100)
+          .sortBy(function(d) {
+            return d["ID"];
+          })
+          .order(d3.descending);
+
+        //Render all charts
+        dc.renderAll();
+      });
+
+
+    </script>
+</body>
+
+<!--
+Reference:
+crossfilter tutorial: http://blog.rusty.io/2012/09/17/crossfilter-tutorial/
+crossfilter example:  https://dc-js.github.io/dc.js/
+-->
+
+</html>

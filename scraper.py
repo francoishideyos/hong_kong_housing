@@ -11,7 +11,7 @@ from scrapy.selector import HtmlXPathSelector
 main_urls = ['https://www.28hse.com/en/buy/place-1/house-type-g1','https://www.28hse.com/en/buy/place-2/house-type-g1','https://www.28hse.com/en/buy/place-3/house-type-g1']
 
 
-def scrapers(urls = main_urls, file_format = '.csv', next_page_dummy = True, file_path = 'assets/data/urls_to_scrape_'+ time.strftime("%m-%d-%Y") ):
+def scrapers(urls = main_urls, file_format = 'csv', next_page_dummy = True, file_path = 'assets/data/urls_to_scrape_'+ time.strftime("%m-%d-%Y") ):
 
     # Use Scrapy to start scraping for the urls
     class JsonWriterPipeline(object):
@@ -35,7 +35,7 @@ def scrapers(urls = main_urls, file_format = '.csv', next_page_dummy = True, fil
             'LOG_LEVEL': logging.WARNING,
             # 'ITEM_PIPELINES': {'__main__.JsonWriterPipeline': 1}, # Used for pipeline 1
             'FEED_FORMAT': file_format,                                 # Used for pipeline 2
-            'FEED_URI': 'assets/data/urls_to_scrape_'+ time.strftime("%m-%d-%Y")+ file_format         # Used for pipeline 2
+            'FEED_URI': 'assets/data/urls_to_scrape_'+ time.strftime("%m-%d-%Y")+ "."+file_format         # Used for pipeline 2
         }
 
         def parse(self, response):
@@ -90,7 +90,7 @@ def scrapers(urls = main_urls, file_format = '.csv', next_page_dummy = True, fil
             houses['Net floor area(sq feet)']        = response.xpath('//th[contains(text(), "Net floor area(sq feet)")]/following::td[1]/text()').extract()
             houses['Management Fee']                 = response.xpath('//th[contains(text(), "Management Fee")]/following::td[1]/text()').extract()
             houses['Property age(year)']             = response.xpath('//th[contains(text(), "Property age(year)")]/following::td[1]/text()').extract()
-            houses['Address']                        = response.xpath('//th[contains(text(), "Address")]/following::td[1]/text()').extract()
+            houses['Address']                        = response.xpath('//th[contains(text(), "Address")]/following::td[1]/div[1]/div[1]/text()').extract()
             houses['Views #']                        = response.xpath('//th[contains(text(), "Views #")]/following::td[1]/text()').extract()
             houses['Bookmarked #']                   = response.xpath('//th[contains(text(), "Bookmarked #")]/following::td[1]/text()').extract()
             houses['Ads or renew date']              = response.xpath('//th[contains(text(), "Ads or renew date")]/following::td[1]/text()').extract()
